@@ -88,6 +88,32 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,Bl
 .chartBox{position:relative;height:230px}
 .footer{color:var(--muted);font-size:11.5px;margin-top:16px;text-align:center}
 .spin{color:var(--muted);font-size:12.5px;font-style:italic}
+/* Log button + modal */
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:40;background:var(--accent);color:#0b0e14;border:none;border-radius:999px;padding:14px 20px;font-size:15px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.45);cursor:pointer}
+.fab:active{transform:scale(.97)}
+.modalBg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.modalBg.open{display:flex}
+@media(min-width:560px){.modalBg{align-items:center}}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+@media(min-width:560px){.modal{border-radius:18px}}
+.modal h3{margin:0 0 2px;font-size:17px}
+.modal .msub{color:var(--muted);font-size:12px;margin-bottom:16px}
+.fgroup{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.fgroup .gh{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:10px;font-weight:700}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0}
+.frow label{font-size:13.5px}
+.frow input[type=number]{width:96px;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px;text-align:right}
+.frow input[type=date]{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px}
+.sw{position:relative;width:46px;height:27px;flex:0 0 auto}
+.sw input{opacity:0;width:0;height:0}
+.sw .sl{position:absolute;inset:0;background:var(--track);border-radius:999px;transition:.2s;cursor:pointer}
+.sw .sl:before{content:"";position:absolute;height:21px;width:21px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked + .sl{background:var(--accent)}
+.sw input:checked + .sl:before{transform:translateX(19px)}
+.mact{display:flex;gap:10px;margin-top:6px}
+.mact button{flex:1;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--line)}
+.mact .save{background:var(--accent);color:#0b0e14;border-color:var(--accent)}
+.mact .cancel{background:transparent;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -162,6 +188,57 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,Bl
   <div class="footer">Scoring: Training&nbsp;&amp;&nbsp;Nutrition 35 · Trading 22 · Academics 23 · Wellness 20 = 100. Goals: 3000 kcal / 208g protein. 0 trades = full trading score (disciplined no-setup day).</div>
 </div>
 
+<button class="fab" id="logBtn">＋ Log day</button>
+
+<div class="modalBg" id="modalBg">
+  <div class="modal">
+    <h3>Log a day</h3>
+    <div class="msub">Saved on this device. Tell Claude the same day to keep the desktop dashboard in sync.</div>
+
+    <div class="fgroup">
+      <div class="frow"><label for="f_date">Date</label><input type="date" id="f_date"></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="gh">Training & Nutrition</div>
+      <div class="frow"><label>Trained today (gym / sport)</label><span class="sw"><input type="checkbox" id="f_session"><span class="sl"></span></span></div>
+      <div class="frow"><label>Calories</label><input type="number" id="f_cal" inputmode="numeric" placeholder="0"></div>
+      <div class="frow"><label>Protein (g)</label><input type="number" id="f_pro" inputmode="numeric" placeholder="0"></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="gh">Trading</div>
+      <div class="frow"><label># of trades</label><input type="number" id="f_trades" inputmode="numeric" placeholder="0"></div>
+      <div class="frow"><label>Followed my plan</label><span class="sw"><input type="checkbox" id="f_plan"><span class="sl"></span></span></div>
+      <div class="frow"><label>Journaled</label><span class="sw"><input type="checkbox" id="f_journ"><span class="sl"></span></span></div>
+      <div class="frow"><label>P&L ($)</label><input type="number" id="f_pnl" inputmode="numeric" placeholder="0"></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="gh">Academics</div>
+      <div class="frow"><label>Homework done</label><span class="sw"><input type="checkbox" id="f_hw"><span class="sl"></span></span></div>
+      <div class="frow"><label>Study hours</label><input type="number" id="f_study" inputmode="decimal" step="0.5" placeholder="0"></div>
+      <div class="frow"><label>Learned something new</label><span class="sw"><input type="checkbox" id="f_learn"><span class="sl"></span></span></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="gh">Wellness</div>
+      <div class="frow"><label>Skincare AM</label><span class="sw"><input type="checkbox" id="f_skAM"><span class="sl"></span></span></div>
+      <div class="frow"><label>Skincare PM</label><span class="sw"><input type="checkbox" id="f_skPM"><span class="sl"></span></span></div>
+      <div class="frow"><label>Sleep (hours)</label><input type="number" id="f_sleep" inputmode="decimal" step="0.5" placeholder="0"></div>
+      <div class="frow"><label>No phone until upstairs</label><span class="sw"><input type="checkbox" id="f_npUp"><span class="sl"></span></span></div>
+      <div class="frow"><label>No phone after 10:30</label><span class="sw"><input type="checkbox" id="f_np1030"><span class="sl"></span></span></div>
+      <div class="frow"><label>Max 1h Instagram</label><span class="sw"><input type="checkbox" id="f_ig"><span class="sl"></span></span></div>
+      <div class="frow"><label>Max 1h Snapchat</label><span class="sw"><input type="checkbox" id="f_sc"><span class="sl"></span></span></div>
+    </div>
+
+    <div class="mact">
+      <button class="cancel" id="cancelBtn">Cancel</button>
+      <button class="save" id="saveBtn">Save day</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SPLIT={
  1:{code:"MS",name:"Mobility / Stretch",ex:["Butterflies 2×30s @8kg","Hip flexor raises 2×15","Side lunge bend 2×12","Squat hold 2×30s","World's greatest stretch 2×30","Toe touches 2×30s"]},
@@ -193,23 +270,40 @@ function scoreLog(l){
   return {training,trading,academics,wellness,composite:Math.round(training+trading+academics+wellness)};
 }
 
-const logs=[...DATA.logs].sort((x,y)=>x.date<y.date?-1:1);
+// Merge embedded DATA.logs with days the user saved in this browser (localStorage wins per-date).
+const LS_KEY='growthLogs';
+function storedLogs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return [];}}
+function saveStored(arr){localStorage.setItem(LS_KEY,JSON.stringify(arr));}
+function mergedLogs(){
+  const map={};
+  DATA.logs.forEach(l=>map[l.date]=l);
+  storedLogs().forEach(l=>map[l.date]=l);
+  return Object.values(map).sort((x,y)=>x.date<y.date?-1:1);
+}
+
+const fmt=d=>new Date(d+"T00:00:00").toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+let trendChart=null, radarChart=null;
+
+function render(){
+const logs=mergedLogs();
 const today=logs[logs.length-1];
 const yest=logs[logs.length-2];
 const sToday=scoreLog(today);
 const sYest=yest?scoreLog(yest):null;
 
-const fmt=d=>new Date(d+"T00:00:00").toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
 document.getElementById('subline').textContent="Latest: "+fmt(today.date);
-document.getElementById('rangeNote').textContent=logs.length+" days logged";
-if(!DATA.isSample) document.getElementById('sampleBanner').style.display='none';
+document.getElementById('rangeNote').textContent=logs.length+" day"+(logs.length===1?'':'s')+" logged";
+document.getElementById('sampleBanner').style.display = (!DATA.isSample || storedLogs().length) ? 'none' : '';
 
 const C=2*Math.PI*72, arc=document.getElementById('ringArc');
 arc.style.strokeDasharray=C;
+arc.style.transition='none'; arc.style.strokeDashoffset=C;
 setTimeout(()=>{arc.style.transition='stroke-dashoffset 900ms ease';arc.style.strokeDashoffset=C*(1-sToday.composite/100);},60);
 document.getElementById('compNum').textContent=sToday.composite;
-if(sYest){const d=sToday.composite-sYest.composite,el=document.getElementById('compDelta');
-  el.textContent=(d>=0?'▲ +':'▼ ')+d+' vs yesterday';el.style.color=d>=0?'var(--good)':'var(--bad)';}
+const elD=document.getElementById('compDelta');
+if(sYest){const d=sToday.composite-sYest.composite;
+  elD.textContent=(d>=0?'▲ +':'▼ ')+d+' vs yesterday';elD.style.color=d>=0?'var(--good)':'var(--bad)';}
+else elD.textContent='';
 
 const doms=[
   {k:'training',cls:'train',name:'Training & Nutrition',max:35},
@@ -266,7 +360,8 @@ document.getElementById('workout').innerHTML=
 
 const GRID='#232935', TICK='#9aa3b2';
 const last30=logs.slice(-30);
-new Chart(document.getElementById('trend'),{type:'line',
+if(trendChart) trendChart.destroy();
+trendChart=new Chart(document.getElementById('trend'),{type:'line',
   data:{labels:last30.map(l=>fmt(l.date)),datasets:[{label:'Composite',data:last30.map(l=>scoreLog(l).composite),
     borderColor:'#818cf8',backgroundColor:'rgba(129,140,248,.15)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#818cf8',borderWidth:2}]},
   options:{responsive:true,maintainAspectRatio:false,
@@ -275,7 +370,8 @@ new Chart(document.getElementById('trend'),{type:'line',
 
 const last7=logs.slice(-7).map(scoreLog);
 const avg=k=>last7.reduce((s,x)=>s+x[k],0)/last7.length;
-new Chart(document.getElementById('radar'),{type:'radar',
+if(radarChart) radarChart.destroy();
+radarChart=new Chart(document.getElementById('radar'),{type:'radar',
   data:{labels:['Training','Trading','Academics','Wellness'],datasets:[{data:[avg('training')/35*100,avg('trading')/22*100,avg('academics')/23*100,avg('wellness')/20*100],
     borderColor:'#818cf8',backgroundColor:'rgba(129,140,248,.2)',pointBackgroundColor:'#818cf8',borderWidth:2}]},
   options:{responsive:true,maintainAspectRatio:false,
@@ -318,6 +414,50 @@ function heuristicSummary(){
 }
 renderRecs(heuristics());
 const sm=document.getElementById('summary'); sm.classList.remove('spin'); sm.innerHTML=heuristicSummary();
+}
+
+// ---- Log day form ----
+const $=id=>document.getElementById(id);
+const modalBg=$('modalBg');
+function localISO(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
+function setChk(id,v){$(id).checked=!!v;}
+function setNum(id,v){$(id).value=(v===0||v)?v:'';}
+function prefill(date){
+  // If this date is already logged (browser or embedded), load it; else blank.
+  const existing=mergedLogs().find(l=>l.date===date)||{};
+  const t=existing.training||{},n=existing.nutrition||{},tr=existing.trading||{},a=existing.academics||{},w=existing.wellness||{};
+  setChk('f_session',t.session);
+  setNum('f_cal',n.calories); setNum('f_pro',n.protein);
+  setNum('f_trades',tr.trades); setChk('f_plan',tr.followedPlan); setChk('f_journ',tr.journaled); setNum('f_pnl',tr.pnl);
+  setChk('f_hw',a.homework); setNum('f_study',a.studyHours); setChk('f_learn',a.learned);
+  setChk('f_skAM',w.skinAM); setChk('f_skPM',w.skinPM); setNum('f_sleep',w.sleep);
+  setChk('f_npUp',w.noPhoneUntilUp); setChk('f_np1030',w.noPhoneAfter1030); setChk('f_ig',w.maxIG); setChk('f_sc',w.maxSC);
+}
+function openModal(){const d=localISO();$('f_date').value=d;prefill(d);modalBg.classList.add('open');}
+function closeModal(){modalBg.classList.remove('open');}
+$('logBtn').addEventListener('click',openModal);
+$('cancelBtn').addEventListener('click',closeModal);
+modalBg.addEventListener('click',e=>{if(e.target===modalBg)closeModal();});
+$('f_date').addEventListener('change',e=>prefill(e.target.value));
+$('saveBtn').addEventListener('click',()=>{
+  const num=id=>{const v=parseFloat($(id).value);return isNaN(v)?0:v;};
+  const entry={
+    date:$('f_date').value||localISO(),
+    training:{session:$('f_session').checked},
+    nutrition:{calories:num('f_cal'),protein:num('f_pro')},
+    trading:{trades:num('f_trades'),followedPlan:$('f_plan').checked,journaled:$('f_journ').checked,pnl:num('f_pnl')},
+    academics:{homework:$('f_hw').checked,studyHours:num('f_study'),learned:$('f_learn').checked},
+    wellness:{skinAM:$('f_skAM').checked,skinPM:$('f_skPM').checked,sleep:num('f_sleep'),
+      noPhoneUntilUp:$('f_npUp').checked,noPhoneAfter1030:$('f_np1030').checked,maxIG:$('f_ig').checked,maxSC:$('f_sc').checked}
+  };
+  const arr=storedLogs().filter(l=>l.date!==entry.date);
+  arr.push(entry);
+  saveStored(arr);
+  closeModal();
+  render();
+});
+
+render();
 
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
 </script>

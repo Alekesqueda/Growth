@@ -1,6 +1,6 @@
 // Personal Growth Dashboard service worker
-// Cache name bumped to v2 to force phones to drop the old (light) cached build.
-const CACHE = 'growth-v2-2026-05-30';
+// Bumped to v3: standalone in-browser "Log day" form added.
+const CACHE = 'growth-v3-2026-05-30';
 const ASSETS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
