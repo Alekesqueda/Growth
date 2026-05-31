@@ -1,6 +1,6 @@
 // Personal Growth Dashboard service worker
-// Bumped to v3: standalone in-browser "Log day" form added.
-const CACHE = 'growth-v3-2026-05-30';
+// Bumped to v4: log-form toggle switches made tappable (label wrap).
+const CACHE = 'growth-v4-2026-05-30';
 const ASSETS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
